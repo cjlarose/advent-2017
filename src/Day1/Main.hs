@@ -3,9 +3,15 @@ module Day1.Main where
 import Data.Char (digitToInt, isDigit)
 
 captcha :: Int -> [Int] -> Int
-captcha n digits = sum . map fst . filter (uncurry (==)) . take (length digits) . zip xs . drop n $ xs
-  where
-    xs = cycle digits
+captcha n digits =
+  sum
+    . map fst
+    . filter (uncurry (==))
+    . take (length digits)
+    . zip xs
+    . drop n
+    $ xs
+  where xs = cycle digits
 
 solve :: String -> IO ()
 solve input = do
