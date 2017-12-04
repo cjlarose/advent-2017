@@ -1,5 +1,7 @@
 module Day3.Main where
 
+import Control.Arrow ((***))
+
 distance :: Int -> Int
 distance x = abs (((x - (n * n) - 1) `mod` (n + 1)) - dv) + n - dv
  where
@@ -17,8 +19,7 @@ coordSpiral :: [(Int, Int)]
 coordSpiral = iterate nextCoord (0, 0)
 
 neighbors :: (Int, Int) -> [(Int, Int)]
-neighbors (x, y) =
-  map (\(x1, y1) -> (x + x1, y + y1)) . take 8 . drop 1 $ coordSpiral
+neighbors (x, y) = map ((+) x *** (+) y) . take 8 . drop 1 $ coordSpiral
 
 spiralSums' :: [(Int, Int)] -> ((Int, Int) -> Int) -> [Int]
 spiralSums' (x:xs) valueAtCoord = newVal : spiralSums' xs newF
@@ -27,10 +28,10 @@ spiralSums' (x:xs) valueAtCoord = newVal : spiralSums' xs newF
   newF c = if c == x then newVal else valueAtCoord c
 
 spiralSums :: [Int]
-spiralSums = spiralSums' (drop 1 coordSpiral) (fromEnum . (== (0, 0)))
+spiralSums = spiralSums' (drop 1 coordSpiral) (fromEnum . (==(0, 0)))
 
 solve :: String -> IO ()
 solve input = do
   let x = read input :: Int
   print . distance $ x
-  print . head . filter (> x) $ spiralSums
+  print . head . filter (>x) $ spiralSums
