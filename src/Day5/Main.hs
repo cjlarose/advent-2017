@@ -25,13 +25,12 @@ advance f m@(x:xs, ys)
   | x >= 0    = iterate moveForward (updateCurrent f m) !! x
   | otherwise = iterate moveBackward (updateCurrent f m) !! (-x)
 
-runMachine :: (Instruction -> Instruction) -> Machine -> [Machine]
-runMachine = iterate . advance
-
 solve :: String -> IO ()
 solve input = do
-  let instructions = map read . lines $ input
-      initialState = makeMachine instructions
-      states f = takeWhile (not . terminated) . runMachine f $ initialState
+  let
+    instructions = map read . lines $ input
+    initialState = makeMachine instructions
+    states f =
+      takeWhile (not . terminated) . iterate (advance f) $ initialState
   print . length $ states succ
   print . length $ states (\x -> if x >= 3 then x - 1 else x + 1)
