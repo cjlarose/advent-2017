@@ -21,7 +21,7 @@ moveBackward :: Machine -> Machine
 moveBackward (x:xs, ys) = (xs, x : ys)
 
 advance :: (Instruction -> Instruction) -> Machine -> Machine
-advance f m@(x:xs, ys)
+advance f m@(x:_, _)
   | x >= 0    = iterate moveForward (updateCurrent f m) !! x
   | otherwise = iterate moveBackward (updateCurrent f m) !! (-x)
 
