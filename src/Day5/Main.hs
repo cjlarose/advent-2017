@@ -32,5 +32,6 @@ solve :: String -> IO ()
 solve input = do
   let instructions = map read . lines $ input
       initialState = makeMachine instructions
-      states = takeWhile (not . terminated) . runMachine succ $ initialState
-  print . length $ states
+      states f = takeWhile (not . terminated) . runMachine f $ initialState
+  print . length $ states succ
+  print . length $ states (\x -> if x >= 3 then x - 1 else x + 1)
