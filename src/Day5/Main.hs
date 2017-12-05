@@ -10,8 +10,8 @@ terminated :: Machine -> Bool
 terminated ([], _) = True
 terminated _       = False
 
-incCurrent :: Machine -> Machine
-incCurrent (x:xs, ys) = (succ x : xs, ys)
+updateCurrent :: (Instruction -> Instruction) -> Machine -> Machine
+updateCurrent f (x:xs, ys) = (f x : xs, ys)
 
 moveForward :: Machine -> Machine
 moveForward (xs, []  ) = ([], xs)
@@ -20,16 +20,17 @@ moveForward (xs, y:ys) = (y : xs, ys)
 moveBackward :: Machine -> Machine
 moveBackward (x:xs, ys) = (xs, x : ys)
 
-advance :: Machine -> Machine
-advance m@(x:xs, ys) | x >= 0    = iterate moveForward (incCurrent m) !! x
-                     | otherwise = iterate moveBackward (incCurrent m) !! (-x)
+advance :: (Instruction -> Instruction) -> Machine -> Machine
+advance f m@(x:xs, ys)
+  | x >= 0    = iterate moveForward (updateCurrent f m) !! x
+  | otherwise = iterate moveBackward (updateCurrent f m) !! (-x)
 
-runMachine :: Machine -> [Machine]
-runMachine = iterate advance
+runMachine :: (Instruction -> Instruction) -> Machine -> [Machine]
+runMachine = iterate . advance
 
 solve :: String -> IO ()
 solve input = do
   let instructions = map read . lines $ input
       initialState = makeMachine instructions
-      states       = takeWhile (not . terminated) . runMachine $ initialState
+      states = takeWhile (not . terminated) . runMachine succ $ initialState
   print . length $ states
