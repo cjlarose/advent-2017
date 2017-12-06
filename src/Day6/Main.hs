@@ -1,25 +1,26 @@
 module Day6.Main where
 
 import Data.Set (Set, member, insert, empty)
-import Data.List (maximumBy)
-import Data.Ord (comparing)
-import Data.Array.IArray (Array, (//), listArray, (!), bounds, assocs)
+import qualified Data.Heap as Heap
 
-type BankList = Array Int Int
+type BankList = Heap.Heap (Int, Int)
 
 update :: (Int -> Int) -> Int -> BankList -> BankList
-update f i banks = banks // [(i, f (banks ! i))]
+update f i =
+  Heap.map (\x@(n, j) -> if j == i then (negate . f . negate $ n, i) else x)
 
 dropBlocks :: BankList -> Int -> Int -> BankList
 dropBlocks banks _ 0 = banks
 dropBlocks banks i n = dropBlocks newBanks (succ i) (pred n)
  where
-  j        = i `mod` (snd (bounds banks) + 1)
+  j        = i `mod` Heap.size banks
   newBanks = update succ j banks
 
 redistribute :: BankList -> BankList
-redistribute banks = dropBlocks (update (const 0) i banks) (succ i) n
-  where (i, n) = maximumBy (comparing (\(x, y) -> (y, -x))) . assocs $ banks
+redistribute banks = dropBlocks newHeap (succ i) (-n)
+ where
+  (n, i)  = Heap.minimum banks
+  newHeap = Heap.insert (0, i) $ Heap.deleteMin banks
 
 takeWhileDistinct :: Ord a => [a] -> [a]
 takeWhileDistinct = f empty
@@ -32,9 +33,9 @@ redistributeUntilLoopDetected = takeWhileDistinct . iterate redistribute
 
 solve :: String -> IO ()
 solve input = do
-  let xs       = map read . words $ input
+  let xs       = map read . words $ input :: [Int]
       maxIndex = length xs - 1
-      banks    = listArray (0, maxIndex) xs
+      banks    = Heap.fromList $ zipWith (\i c -> (-c, i)) [0 ..] xs
       states   = redistributeUntilLoopDetected banks
   print . length $ states
   print . length . redistributeUntilLoopDetected . last $ states

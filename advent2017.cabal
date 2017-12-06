@@ -20,3 +20,4 @@ executable advent2017
   build-depends:       base >= 4.7 && < 5
                       ,array
                       ,containers
+                      ,heaps
