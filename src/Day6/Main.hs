@@ -31,8 +31,10 @@ takeWhileDistinct = takeWhileDistinct' empty
 
 solve :: String -> IO ()
 solve input = do
-  let xs       = map read . words $ input
-      maxIndex = length xs - 1
-      banks    = listArray (0, maxIndex) xs-- :: BankList
-      states   = iterate redistribute banks
-  print . length . takeWhileDistinct $ states
+  let xs        = map read . words $ input
+      maxIndex  = length xs - 1
+      banks     = listArray (0, maxIndex) xs-- :: BankList
+      states    = takeWhileDistinct $ iterate redistribute banks
+      lastState = last states
+  print . length $ states
+  print . length . takeWhileDistinct . iterate redistribute $ lastState
