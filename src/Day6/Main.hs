@@ -29,12 +29,14 @@ takeWhileDistinct' seen (x:xs)
 takeWhileDistinct :: Ord a => [a] -> [a]
 takeWhileDistinct = takeWhileDistinct' empty
 
+redistributeUntilLoopDetected :: BankList -> [BankList]
+redistributeUntilLoopDetected = takeWhileDistinct . iterate redistribute
+
 solve :: String -> IO ()
 solve input = do
-  let xs        = map read . words $ input
-      maxIndex  = length xs - 1
-      banks     = listArray (0, maxIndex) xs
-      states    = takeWhileDistinct $ iterate redistribute banks
-      lastState = last states
+  let xs       = map read . words $ input
+      maxIndex = length xs - 1
+      banks    = listArray (0, maxIndex) xs
+      states   = redistributeUntilLoopDetected banks
   print . length $ states
-  print . length . takeWhileDistinct . iterate redistribute $ lastState
+  print . length . redistributeUntilLoopDetected . last $ states
