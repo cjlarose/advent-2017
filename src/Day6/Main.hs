@@ -33,7 +33,7 @@ solve :: String -> IO ()
 solve input = do
   let xs        = map read . words $ input
       maxIndex  = length xs - 1
-      banks     = listArray (0, maxIndex) xs-- :: BankList
+      banks     = listArray (0, maxIndex) xs
       states    = takeWhileDistinct $ iterate redistribute banks
       lastState = last states
   print . length $ states
