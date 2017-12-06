@@ -5,16 +5,13 @@ import qualified Data.Heap as Heap
 
 type BankList = Heap.Heap (Int, Int)
 
-update :: (Int -> Int) -> Int -> BankList -> BankList
-update f i =
-  Heap.map (\x@(n, j) -> if j == i then (negate . f . negate $ n, i) else x)
-
 dropBlocks :: BankList -> Int -> Int -> BankList
-dropBlocks banks _ 0 = banks
-dropBlocks banks i n = dropBlocks newBanks (succ i) (pred n)
- where
-  j        = i `mod` Heap.size banks
-  newBanks = update succ j banks
+dropBlocks banks i n = Heap.map f banks
+  where
+    sz = Heap.size banks
+    newBlocksAtDistance d = n `div` sz + (if d < n `mod` sz then 1 else 0)
+    distance j = if j >= i then j - i else (j + sz) - i
+    f (m, j) = (- ((- m) + (newBlocksAtDistance . distance $ j)), j)
 
 redistribute :: BankList -> BankList
 redistribute banks = dropBlocks newHeap (succ i) (-n)
