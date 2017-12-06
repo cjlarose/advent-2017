@@ -21,13 +21,11 @@ redistribute :: BankList -> BankList
 redistribute banks = dropBlocks (update (const 0) i banks) (succ i) n
   where (i, n) = maximumBy (comparing (\(x, y) -> (y, -x))) . assocs $ banks
 
-takeWhileDistinct' :: Ord a => Set a -> [a] -> [a]
-takeWhileDistinct' seen (x:xs)
-  | x `member` seen = []
-  | otherwise       = x : takeWhileDistinct' (insert x seen) xs
-
 takeWhileDistinct :: Ord a => [a] -> [a]
-takeWhileDistinct = takeWhileDistinct' empty
+takeWhileDistinct = f empty
+ where
+  f seen (x:xs) | x `member` seen = []
+                | otherwise       = x : f (insert x seen) xs
 
 redistributeUntilLoopDetected :: BankList -> [BankList]
 redistributeUntilLoopDetected = takeWhileDistinct . iterate redistribute
