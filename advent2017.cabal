@@ -18,6 +18,8 @@ executable advent2017
   main-is:             Main.hs
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
-                      ,array
-                      ,containers
-                      ,heaps
+                     , array
+                     , containers
+                     , heaps
+                     , attoparsec
+                     , utf8-string
