@@ -24,4 +24,5 @@ solve input = do
     Right progs -> do
       let progNames  = Set.fromList $ map (\(name, _, _) -> name) progs
           dependants = Set.fromList $ concatMap (\(_, _, deps) -> deps) progs
-      print . Set.findMin $ Set.difference progNames dependants
+          root       = Set.findMin $ Set.difference progNames dependants
+      print root
