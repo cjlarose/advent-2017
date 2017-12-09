@@ -19,10 +19,7 @@ getBinOp Equal       = (==)
 getBinOp NotEqual    = (/=)
 
 evaluateBoolExpr :: BooleanExpression -> State RegisterState Bool
-evaluateBoolExpr (BooleanExpression reg op int) = do
-  val <- lookupRegister reg
-  let comp = getBinOp op
-  return $ val `comp` int
+evaluateBoolExpr (BooleanExpression reg op int) = flip (getBinOp op) int <$> lookupRegister reg
 
 evaluateIncrStmt :: IncrementStatement -> State RegisterState ()
 evaluateIncrStmt (IncrementStatement reg int) = do
