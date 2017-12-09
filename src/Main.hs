@@ -1,6 +1,8 @@
 module Main where
 
 import System.Environment (getArgs)
+import System.IO (hPrint, stderr)
+
 import qualified Day1.Main
 import qualified Day2.Main
 import qualified Day3.Main
@@ -17,6 +19,7 @@ solver 4 = Day4.Main.solve
 solver 5 = Day5.Main.solve
 solver 6 = Day6.Main.solve
 solver 7 = Day7.Main.solve
+solver n = const (hPrint stderr $ "Unknown problem " ++ show n)
 
 main :: IO ()
 main = do
