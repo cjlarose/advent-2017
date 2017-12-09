@@ -15,7 +15,8 @@ binding :: RegisterName -> Int -> RegisterState
 binding reg v = RegisterState $ Map.singleton reg v
 
 lookupRegister :: RegisterName -> State RegisterState Int
-lookupRegister reg = (\(RegisterState m) -> Map.findWithDefault 0 reg m) <$> get
+lookupRegister reg =
+  (\(RegisterState m) -> Map.findWithDefault 0 reg m) <$> get
 
 getBinOp :: BinOp -> (Int -> Int -> Bool)
 getBinOp Greater     = (>)
@@ -26,7 +27,8 @@ getBinOp Equal       = (==)
 getBinOp NotEqual    = (/=)
 
 evaluateBoolExpr :: BooleanExpression -> State RegisterState Bool
-evaluateBoolExpr (BooleanExpression reg op int) = flip (getBinOp op) int <$> lookupRegister reg
+evaluateBoolExpr (BooleanExpression reg op int) =
+  flip (getBinOp op) int <$> lookupRegister reg
 
 evaluateIncrStmt :: IncrementStatement -> State RegisterState ()
 evaluateIncrStmt (IncrementStatement reg int) =
