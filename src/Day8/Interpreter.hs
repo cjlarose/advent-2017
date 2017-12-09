@@ -8,11 +8,7 @@ import Day8.AST (ConditionalStatement(..), RegisterName, BooleanExpression(..), 
 type RegisterState = Map.Map RegisterName Int
 
 lookupRegister :: RegisterName -> State RegisterState Int
-lookupRegister reg = do
-  regs <- get
-  let val = Map.findWithDefault 0 reg regs
-  put $ Map.insert reg val regs
-  return val
+lookupRegister reg = Map.findWithDefault 0 reg <$> get
 
 getBinOp :: BinOp -> (Int -> Int -> Bool)
 getBinOp Greater     = (>)
