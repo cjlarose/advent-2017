@@ -1,14 +1,14 @@
-module Day8.Interpreter (interpret) where
+module Day8.Interpreter (interpret, RegisterState(..)) where
 
 import qualified Data.Map.Strict as Map
 import Control.Monad.State (State, execState, get, put)
 import Control.Monad (when, mapM)
 import Day8.AST (ConditionalStatement(..), RegisterName, BooleanExpression(..), BinOp(..), IncrementStatement(..))
 
-type RegisterState = Map.Map RegisterName Int
+newtype RegisterState = RegisterState (Map.Map RegisterName Int)
 
 lookupRegister :: RegisterName -> State RegisterState Int
-lookupRegister reg = Map.findWithDefault 0 reg <$> get
+lookupRegister reg = (\(RegisterState m) -> Map.findWithDefault 0 reg m) <$> get
 
 getBinOp :: BinOp -> (Int -> Int -> Bool)
 getBinOp Greater     = (>)
@@ -25,8 +25,8 @@ evaluateIncrStmt :: IncrementStatement -> State RegisterState ()
 evaluateIncrStmt (IncrementStatement reg int) = do
   val <- lookupRegister reg
   let newVal = val + int
-  regs <- get
-  put $ Map.insert reg newVal regs
+  (RegisterState regs) <- get
+  put $ RegisterState (Map.insert reg newVal regs)
 
 evaluate :: ConditionalStatement -> State RegisterState ()
 evaluate (ConditionalStatement b stmt) = do
@@ -34,4 +34,4 @@ evaluate (ConditionalStatement b stmt) = do
   when proceed $ evaluateIncrStmt stmt
 
 interpret :: [ConditionalStatement] -> RegisterState
-interpret xs = execState (mapM evaluate xs) Map.empty
+interpret xs = execState (mapM evaluate xs) (RegisterState Map.empty)

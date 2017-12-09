@@ -5,7 +5,7 @@ import Data.List (maximum)
 import Data.Attoparsec.ByteString (parseOnly)
 import Data.ByteString.UTF8 (fromString)
 import Day8.Parser (instructionList)
-import Day8.Interpreter (interpret)
+import Day8.Interpreter (interpret, RegisterState(..))
 
 largestValue :: Map.Map String Int -> Int
 largestValue regs = max (maximum . Map.elems $ regs) 0
@@ -16,6 +16,6 @@ solve input = do
   case parsed of
     Left  _   -> print "err"
     Right ast -> do
-      let result = interpret ast
+      let (RegisterState result) = interpret ast
       print result
       print . largestValue $ result
