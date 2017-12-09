@@ -22,6 +22,7 @@ neighbors :: (Int, Int) -> [(Int, Int)]
 neighbors (x, y) = map ((+) x *** (+) y) . take 8 . drop 1 $ coordSpiral
 
 spiralSums' :: [(Int, Int)] -> ((Int, Int) -> Int) -> [Int]
+spiralSums' [] _ = error "Whoops"
 spiralSums' (x:xs) valueAtCoord = newVal : spiralSums' xs newF
  where
   newVal = sum . map valueAtCoord . neighbors $ x
