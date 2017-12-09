@@ -25,3 +25,4 @@ executable advent2017
                      , attoparsec
                      , utf8-string
                      , bytestring
+                     , mtl
