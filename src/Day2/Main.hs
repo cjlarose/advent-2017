@@ -14,7 +14,7 @@ rowQuotient :: [Int] -> Int
 rowQuotient xs =
   fst
     .  head
-    .  filter (\(_, rem) -> rem == 0)
+    .  filter (\(_, remainder) -> remainder == 0)
     .  map (uncurry divMod)
     $  pairs xs
     ++ map swap (pairs xs)
