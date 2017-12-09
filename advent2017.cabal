@@ -23,3 +23,4 @@ executable advent2017
                      , heaps
                      , attoparsec
                      , utf8-string
+                     , bytestring
