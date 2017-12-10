@@ -5,3 +5,4 @@ data BinOp = Greater | Less | GreaterOrEq | LessOrEq | Equal | NotEqual deriving
 data BooleanExpression = BooleanExpression RegisterName BinOp Int deriving (Show)
 data IncrementStatement = IncrementStatement RegisterName Int deriving (Show)
 data ConditionalStatement = ConditionalStatement BooleanExpression IncrementStatement deriving (Show)
+type Program = [ConditionalStatement]

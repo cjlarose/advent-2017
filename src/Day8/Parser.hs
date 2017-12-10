@@ -1,9 +1,9 @@
-module Day8.Parser (instructionList) where
+module Day8.Parser (program) where
 
 import Data.Attoparsec.ByteString (Parser, takeWhile1, inClass, choice, string, many', endOfInput)
 import Data.Attoparsec.ByteString.Char8 (signed, decimal, space, endOfLine)
 import Data.ByteString.UTF8 (toString, fromString)
-import Day8.AST (IncrementStatement(..), BinOp(..), ConditionalStatement(..), BooleanExpression(..))
+import Day8.AST (IncrementStatement(..), BinOp(..), ConditionalStatement(..), BooleanExpression(..), Program)
 
 registerName :: Parser String
 registerName = toString <$> takeWhile1 (inClass "a-z")
@@ -42,5 +42,5 @@ instruction =
     <$> (statement <* string (fromString " if "))
     <*> (condition <* endOfLine)
 
-instructionList :: Parser [ConditionalStatement]
-instructionList = many' instruction <* endOfInput
+program :: Parser Program
+program = many' instruction <* endOfInput
