@@ -20,10 +20,16 @@ groupMember = choice [group, garbage]
 group :: Parser GroupMember
 group = char '{' *> (Group <$> (groupMember `sepBy` char ',') <* char '}')
 
+score' :: Int -> GroupMember -> Int
+score' _ (Garbage _ ) = 0
+score' p (Group   xs) = let n = 1 + p in sum $ n : map (score' n) xs
+
+score :: GroupMember -> Int
+score = score' 0
+
 solve :: String -> IO ()
 solve input = do
-  let parsed =
-        parseOnly (group <* endOfLine <* endOfInput) (pack input)
+  let parsed = parseOnly (group <* endOfLine <* endOfInput) (pack input)
   case parsed of
     Left  _   -> print "err"
-    Right ast -> print ast
+    Right ast -> print . score $ ast
