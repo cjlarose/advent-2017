@@ -11,10 +11,12 @@ instance Monoid RegisterState where
   mempty = RegisterState Map.empty
   mappend (RegisterState old) (RegisterState new) = RegisterState $ Map.union new old
 
+type RegisterMachine = State RegisterState
+
 binding :: RegisterName -> Int -> RegisterState
 binding reg v = RegisterState $ Map.singleton reg v
 
-lookupRegister :: RegisterName -> State RegisterState Int
+lookupRegister :: RegisterName -> RegisterMachine Int
 lookupRegister reg =
   (\(RegisterState m) -> Map.findWithDefault 0 reg m) <$> get
 
@@ -26,20 +28,20 @@ getBinOp LessOrEq    = (<=)
 getBinOp Equal       = (==)
 getBinOp NotEqual    = (/=)
 
-evaluateBoolExpr :: BooleanExpression -> State RegisterState Bool
+evaluateBoolExpr :: BooleanExpression -> RegisterMachine Bool
 evaluateBoolExpr (BooleanExpression reg op int) =
   flip (getBinOp op) int <$> lookupRegister reg
 
-evaluateIncrStmt :: IncrementStatement -> State RegisterState ()
+evaluateIncrStmt :: IncrementStatement -> RegisterMachine ()
 evaluateIncrStmt (IncrementStatement reg int) =
   lookupRegister reg >>= (\val -> modify (`mappend`binding reg (val + int)))
 
-evaluate :: ConditionalStatement -> State RegisterState ()
+evaluate :: ConditionalStatement -> RegisterMachine ()
 evaluate (ConditionalStatement b stmt) = do
   proceed <- evaluateBoolExpr b
   when proceed $ evaluateIncrStmt stmt
 
-evaluateProgram :: [ConditionalStatement] -> State RegisterState ()
+evaluateProgram :: [ConditionalStatement] -> RegisterMachine ()
 evaluateProgram = mapM_ evaluate
 
 interpret :: [ConditionalStatement] -> RegisterState
