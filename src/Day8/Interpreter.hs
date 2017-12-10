@@ -2,7 +2,7 @@ module Day8.Interpreter (interpret, RegisterState(..)) where
 
 import qualified Data.Map.Strict as Map
 import Control.Monad.State (State, execState, get, modify)
-import Control.Monad (when, mapM)
+import Control.Monad (when, mapM_)
 import Day8.AST (ConditionalStatement(..), RegisterName, BooleanExpression(..), BinOp(..), IncrementStatement(..))
 
 newtype RegisterState = RegisterState (Map.Map RegisterName Int)
@@ -39,5 +39,8 @@ evaluate (ConditionalStatement b stmt) = do
   proceed <- evaluateBoolExpr b
   when proceed $ evaluateIncrStmt stmt
 
+evaluateProgram :: [ConditionalStatement] -> State RegisterState ()
+evaluateProgram = mapM_ evaluate
+
 interpret :: [ConditionalStatement] -> RegisterState
-interpret xs = execState (mapM evaluate xs) mempty
+interpret xs = execState (evaluateProgram xs) mempty
