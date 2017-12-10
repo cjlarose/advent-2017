@@ -11,6 +11,7 @@ import qualified Day5.Main
 import qualified Day6.Main
 import qualified Day7.Main
 import qualified Day8.Main
+import qualified Day9.Main
 
 solver :: Int -> (String -> IO ())
 solver 1 = Day1.Main.solve
@@ -21,6 +22,7 @@ solver 5 = Day5.Main.solve
 solver 6 = Day6.Main.solve
 solver 7 = Day7.Main.solve
 solver 8 = Day8.Main.solve
+solver 9 = Day9.Main.solve
 solver n = const (hPrint stderr $ "Unknown problem " ++ show n)
 
 main :: IO ()
