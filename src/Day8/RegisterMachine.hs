@@ -1,24 +1,14 @@
-module Day8.RegisterMachine (RegisterMachine, RegisterState(..), evaluate) where
+module Day8.RegisterMachine (RegisterMachine, evaluate) where
 
-import qualified Data.Map.Strict as Map
 import Control.Monad.State (State, get, modify)
 import Control.Monad (when)
+import Day8.RegisterState (RegisterState, binding, registerValue)
 import Day8.AST (ConditionalStatement(..), RegisterName, BooleanExpression(..), BinOp(..), IncrementStatement(..))
-
-newtype RegisterState = RegisterState (Map.Map RegisterName Int)
-
-instance Monoid RegisterState where
-  mempty = RegisterState Map.empty
-  mappend (RegisterState old) (RegisterState new) = RegisterState $ Map.union new old
 
 type RegisterMachine = State RegisterState
 
-binding :: RegisterName -> Int -> RegisterState
-binding reg v = RegisterState $ Map.singleton reg v
-
 lookupRegister :: RegisterName -> RegisterMachine Int
-lookupRegister reg =
-  (\(RegisterState m) -> Map.findWithDefault 0 reg m) <$> get
+lookupRegister reg = registerValue reg <$> get
 
 getBinOp :: BinOp -> (Int -> Int -> Bool)
 getBinOp Greater     = (>)
