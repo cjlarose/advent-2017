@@ -27,9 +27,15 @@ score' p (Group   xs) = let n = 1 + p in sum $ n : map (score' n) xs
 score :: GroupMember -> Int
 score = score' 0
 
+extractGarbage :: GroupMember -> String
+extractGarbage (Garbage s ) = s
+extractGarbage (Group   xs) = concatMap extractGarbage xs
+
 solve :: String -> IO ()
 solve input = do
   let parsed = parseOnly (group <* endOfLine <* endOfInput) (pack input)
   case parsed of
     Left  _   -> print "err"
-    Right ast -> print . score $ ast
+    Right ast -> do
+      print . score $ ast
+      print . length . extractGarbage $ ast
