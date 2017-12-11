@@ -1,6 +1,5 @@
 module Day11.Main (solve) where
 
-import Data.List (foldl')
 import Data.List.Split (splitOn)
 
 data Dir = N | NE | SE | S | SW | NW
@@ -22,8 +21,10 @@ move (x, y, z) SW = (x - 1, y, z + 1)
 move (x, y, z) NW = (x - 1, y + 1, z)
 move (x, y, z) SE = (x + 1, y - 1, z)
 
-followPath :: (Int, Int, Int) -> [Dir] -> (Int, Int, Int)
-followPath = foldl' move
+followPath :: (Int, Int, Int) -> [Dir] -> [(Int, Int, Int)]
+followPath _ [] = []
+followPath pos (dir:xs) =
+  let newPos = move pos dir in newPos : followPath newPos xs
 
 distance :: (Int, Int, Int) -> Int
 distance (x, y, z) = sum (map abs [x, y, z]) `div` 2
@@ -31,4 +32,6 @@ distance (x, y, z) = sum (map abs [x, y, z]) `div` 2
 solve :: String -> IO ()
 solve input = do
   let dirs = map toDir . splitOn "," . head . lines $ input
-  print . distance $ followPath (0, 0, 0) dirs
+      path = followPath (0, 0, 0) dirs
+  print . distance . last $ path
+  print . maximum . map distance $ path
