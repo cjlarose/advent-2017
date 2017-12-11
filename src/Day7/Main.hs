@@ -3,22 +3,20 @@ module Day7.Main where
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Data.List (partition)
-import Data.ByteString (ByteString)
-import Data.Attoparsec.ByteString (Parser, takeWhile1, inClass, parseOnly, string, option, sepBy1, sepBy, endOfInput)
-import Data.Attoparsec.ByteString.Char8 (char, isDigit_w8)
-import Data.ByteString.UTF8 (fromString, toString)
+import Data.Attoparsec.Text (Parser, takeWhile1, inClass, parseOnly, string, option, sepBy1, sepBy, endOfInput, decimal, char)
+import Data.Text (Text, pack, unpack)
 
 programName :: Parser String
-programName = toString <$> takeWhile1 (inClass "a-z")
+programName = unpack <$> takeWhile1 (inClass "a-z")
 
 weight :: Parser Int
-weight = read . toString <$> takeWhile1 isDigit_w8
+weight = decimal
 
-arrow :: Parser ByteString
-arrow = string (fromString " -> ")
+arrow :: Parser Text
+arrow = string . pack $ " -> "
 
 dependantsList :: Parser [String]
-dependantsList = programName `sepBy1` string (fromString ", ")
+dependantsList = programName `sepBy1` string (pack ", ")
 
 programDescription :: Parser (String, Int, [String])
 programDescription =
@@ -56,7 +54,7 @@ findProgram' w adj root siblingWeight = if null bad
 
 solve :: String -> IO ()
 solve input = do
-  let parseResult = parseOnly programList (fromString input)
+  let parseResult = parseOnly programList (pack input)
   case parseResult of
     Left  err   -> print err
     Right progs -> do
