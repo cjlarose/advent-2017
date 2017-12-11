@@ -27,3 +27,4 @@ executable advent2017
                      , bytestring
                      , mtl
                      , text
+                     , split
