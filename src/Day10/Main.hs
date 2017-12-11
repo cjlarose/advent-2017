@@ -28,14 +28,14 @@ twist s k = s { skipSize = 1 + skipSize s
   newValues = reverse $ map (\i -> marks s ! i) indices
   changes   = zip indices newValues
 
-knotHashRound :: KnotState -> [Int] -> KnotState
-knotHashRound = foldl' twist
+knotHashRound :: [Int] -> KnotState -> KnotState
+knotHashRound xs s = foldl' twist s xs
 
 part1 :: String -> Int
 part1 input = fromIntegral (final ! 0) * fromIntegral (final ! 1)
  where
   lengths = map read . splitOn "," $ input
-  final   = marks $ knotHashRound (freshLoop 256) lengths
+  final   = marks $ knotHashRound lengths (freshLoop 256)
 
 solve :: String -> IO ()
 solve = print . part1
