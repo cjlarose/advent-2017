@@ -1,9 +1,14 @@
 module Day10.Main (solve) where
 
 import Data.List (foldl')
-import Data.List.Split (splitOn)
+import Data.List.Split (splitOn, chunksOf)
+import qualified Data.ByteString as B
+import Data.ByteString.UTF8 (fromString)
+import Data.ByteString.Lazy.UTF8 (toString)
+import Data.ByteString.Builder (byteStringHex, toLazyByteString)
 import Data.Word (Word8)
-import Data.Array.Unboxed (Array, listArray, (!), (//))
+import Data.Bits (xor)
+import Data.Array.Unboxed (Array, listArray, (!), (//), elems)
 
 data KnotState = KnotState { loopSize :: Int
                            , skipSize :: Int
@@ -31,11 +36,28 @@ twist s k = s { skipSize = 1 + skipSize s
 knotHashRound :: [Int] -> KnotState -> KnotState
 knotHashRound xs s = foldl' twist s xs
 
+sparseHash :: Int -> [Int] -> [Word8]
+sparseHash n xs =
+  elems . marks $ iterate (knotHashRound xs) (freshLoop n) !! 64
+
+condenseHash :: [Word8] -> [Word8]
+condenseHash = map (foldl' xor 0) . chunksOf 16
+
+knotHash :: Int -> B.ByteString -> B.ByteString
+knotHash n input = B.pack . condenseHash . sparseHash n $ lengths
+  where lengths = (map fromIntegral . B.unpack $ input) ++ [17, 31, 73, 47, 23]
+
 part1 :: String -> Int
 part1 input = fromIntegral (final ! 0) * fromIntegral (final ! 1)
  where
   lengths = map read . splitOn "," $ input
   final   = marks $ knotHashRound lengths (freshLoop 256)
 
+part2 :: String -> String
+part2 input = toString . toLazyByteString . byteStringHex $ bytes
+  where bytes = knotHash 256 (fromString . head . lines $ input)
+
 solve :: String -> IO ()
-solve = print . part1
+solve input = do
+  print . part1 $ input
+  putStrLn . part2 $ input
