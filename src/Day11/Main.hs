@@ -1,17 +1,9 @@
 module Day11.Main (solve) where
 
 import Data.List.Split (splitOn)
+import Data.Char (toUpper)
 
-data Dir = N | NE | SE | S | SW | NW
-
-toDir :: String -> Dir
-toDir "n"  = N
-toDir "ne" = NE
-toDir "se" = SE
-toDir "s"  = S
-toDir "sw" = SW
-toDir "nw" = NW
-toDir s    = error $ "Unknown direction " ++ s
+data Dir = N | NE | SE | S | SW | NW deriving Read
 
 move :: (Int, Int, Int) -> Dir -> (Int, Int, Int)
 move (x, y, z) N  = (x, y + 1, z - 1)
@@ -31,7 +23,7 @@ distance (x, y, z) = sum (map abs [x, y, z]) `div` 2
 
 solve :: String -> IO ()
 solve input = do
-  let dirs = map toDir . splitOn "," . head . lines $ input
+  let dirs = map read . splitOn "," . (map toUpper) . head . lines $ input
       path = followPath (0, 0, 0) dirs
   print . distance . last $ path
   print . maximum . map distance $ path
