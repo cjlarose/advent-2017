@@ -1,18 +1,17 @@
 module Day8.Parser (program) where
 
-import Data.Attoparsec.ByteString (Parser, takeWhile1, inClass, choice, string, many', endOfInput)
-import Data.Attoparsec.ByteString.Char8 (signed, decimal, space, endOfLine)
-import Data.ByteString.UTF8 (toString, fromString)
+import Data.Attoparsec.Text (Parser, takeWhile1, inClass, choice, string, many', endOfInput, signed, decimal, space, endOfLine)
+import Data.Text (pack, unpack)
 import Day8.AST (IncrementStatement(..), BinOp(..), ConditionalStatement(..), BooleanExpression(..), Program)
 
 registerName :: Parser String
-registerName = toString <$> takeWhile1 (inClass "a-z")
+registerName = unpack <$> takeWhile1 (inClass "a-z")
 
 increment :: Parser Int
 increment = choice [inc, dec]
  where
-  inc = string (fromString "inc ") *> signed decimal
-  dec = string (fromString "dec ") *> (negate <$> signed decimal)
+  inc = string (pack "inc ") *> signed decimal
+  dec = string (pack "dec ") *> (negate <$> signed decimal)
 
 statement :: Parser IncrementStatement
 statement = IncrementStatement <$> (registerName <* space) <*> increment
@@ -27,7 +26,7 @@ comparisonOperator = choice $ map
   , ("==", Equal)
   , ("!=", NotEqual)
   ]
-  where makeOp (token, f) = f <$ string (fromString token)
+  where makeOp (token, f) = f <$ string (pack token)
 
 condition :: Parser BooleanExpression
 condition =
@@ -39,7 +38,7 @@ condition =
 instruction :: Parser ConditionalStatement
 instruction =
   flip ConditionalStatement
-    <$> (statement <* string (fromString " if "))
+    <$> (statement <* string (pack " if "))
     <*> (condition <* endOfLine)
 
 program :: Parser Program
