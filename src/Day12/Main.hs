@@ -1,5 +1,6 @@
 module Day12.Main (solve) where
 
+import Data.List (foldl')
 import qualified Data.Map.Strict as Map
 import qualified Data.IntSet as Set
 import Data.Text (pack)
@@ -17,14 +18,16 @@ adjacency = liftA2 (,)
 adjacencyList :: Parser [(Int, [Int])]
 adjacencyList = (adjacency `sepBy` endOfLine) <* endOfLine <* endOfInput
 
-connectedSubgraph :: Int -> Graph -> [Int]
+connectedSubgraph :: Int -> Graph -> Set.IntSet
 connectedSubgraph v g = go g Set.empty v
  where
-  go :: Graph -> Set.IntSet -> Int -> [Int]
+  go :: Graph -> Set.IntSet -> Int -> Set.IntSet
   go adj visited u
-    | Set.member u visited = []
-    | otherwise = u : concatMap (go adj (Set.insert u visited))
-                                (fromMaybe [] (Map.lookup u adj))
+    | Set.member u visited
+    = Set.empty
+    | otherwise
+    = foldl' (\acc x -> Set.union acc $ go adj acc x) (Set.insert u visited)
+      $ fromMaybe [] (Map.lookup u adj)
 
 solve :: String -> IO ()
 solve input = do
@@ -33,4 +36,4 @@ solve input = do
     Left  err -> print err
     Right ast -> do
       let graph = Map.fromList ast
-      print . length . connectedSubgraph 0 $ graph
+      print . Set.size . connectedSubgraph 0 $ graph
