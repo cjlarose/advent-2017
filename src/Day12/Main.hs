@@ -2,7 +2,8 @@ module Day12.Main (solve) where
 
 import Data.List (foldl')
 import qualified Data.Map.Strict as Map
-import qualified Data.IntSet as Set
+import qualified Data.IntSet as IntSet
+import qualified Data.Set as Set
 import Data.Text (pack)
 import Data.Attoparsec.Text (Parser, parseOnly, sepBy, endOfLine, endOfInput, decimal, string)
 import Control.Applicative (liftA2)
@@ -18,16 +19,22 @@ adjacency = liftA2 (,)
 adjacencyList :: Parser [(Int, [Int])]
 adjacencyList = (adjacency `sepBy` endOfLine) <* endOfLine <* endOfInput
 
-connectedSubgraph :: Int -> Graph -> Set.IntSet
-connectedSubgraph v g = go g Set.empty v
+connectedSubgraph :: Int -> Graph -> IntSet.IntSet
+connectedSubgraph v g = go g IntSet.empty v
  where
-  go :: Graph -> Set.IntSet -> Int -> Set.IntSet
+  go :: Graph -> IntSet.IntSet -> Int -> IntSet.IntSet
   go adj visited u
-    | Set.member u visited
-    = Set.empty
+    | IntSet.member u visited
+    = IntSet.empty
     | otherwise
-    = foldl' (\acc x -> Set.union acc $ go adj acc x) (Set.insert u visited)
+    = foldl' (\acc x -> IntSet.union acc $ go adj acc x)
+             (IntSet.insert u visited)
       $ fromMaybe [] (Map.lookup u adj)
+
+allSubgraphs :: Graph -> Set.Set IntSet.IntSet
+allSubgraphs graph =
+  let allComponents = map (`connectedSubgraph`graph) $ Map.keys graph
+  in  foldl' Set.union Set.empty $ map Set.singleton allComponents
 
 solve :: String -> IO ()
 solve input = do
@@ -36,4 +43,5 @@ solve input = do
     Left  err -> print err
     Right ast -> do
       let graph = Map.fromList ast
-      print . Set.size . connectedSubgraph 0 $ graph
+      print . IntSet.size . connectedSubgraph 0 $ graph
+      print . Set.size . allSubgraphs $ graph
