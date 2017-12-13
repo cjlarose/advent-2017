@@ -1,7 +1,6 @@
 module Day13.Main (solve) where
 
 import Data.List (find)
-import qualified Data.Map.Strict as Map
 import Data.Attoparsec.Text (Parser, parseOnly, sepBy, string, endOfLine, endOfInput, decimal)
 import Control.Applicative (liftA2)
 import Data.Text (pack)
@@ -10,9 +9,9 @@ import Data.Maybe (fromJust)
 type Depth = Int
 type Range = Int
 type PicoTime = Int
-type Firewall = Map.Map Depth Range
+type Firewall = [(Depth,Range)]
 
-firewall :: Parser [(Depth, Range)]
+firewall :: Parser Firewall
 firewall = (layer `sepBy` endOfLine) <* endOfLine <* endOfInput
  where
   layer :: Parser (Depth, Range)
@@ -21,8 +20,8 @@ firewall = (layer `sepBy` endOfLine) <* endOfLine <* endOfInput
 position :: Range -> PicoTime -> Int
 position r t = let peak = r - 1 in peak - abs (peak - (t `mod` (2 * peak)))
 
-collisions :: PicoTime -> Firewall -> [(Int, Int)]
-collisions t0 = filter (\(d, r) -> position r (t0 + d) == 0) . Map.assocs
+collisions :: PicoTime -> Firewall -> Firewall
+collisions t0 = filter (\(d, r) -> position r (t0 + d) == 0)
 
 tripSeverity :: Firewall -> Int
 tripSeverity = sum . map (uncurry (*)) . collisions 0
@@ -36,7 +35,6 @@ solve input = do
   let parsed = parseOnly firewall . pack $ input
   case parsed of
     Left  err -> print err
-    Right ast -> do
-      let fw = Map.fromList ast
+    Right fw  -> do
       print . tripSeverity $ fw
       print . smallestPossibleSafeDelay $ fw
