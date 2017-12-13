@@ -1,9 +1,11 @@
 module Day13.Main (solve) where
 
+import Data.List (find)
 import qualified Data.Map.Strict as Map
 import Data.Attoparsec.Text (Parser, parseOnly, sepBy, string, endOfLine, endOfInput, decimal)
 import Control.Applicative (liftA2)
 import Data.Text (pack)
+import Data.Maybe (fromJust)
 
 type Depth = Int
 type Range = Int
@@ -19,20 +21,15 @@ firewall = (layer `sepBy` endOfLine) <* endOfLine <* endOfInput
 position :: Range -> PicoTime -> Int
 position r t = let peak = r - 1 in peak - abs (peak - (t `mod` (2 * peak)))
 
+collisions :: PicoTime -> Firewall -> [(Int, Int)]
+collisions t0 = filter (\(d, r) -> position r (t0 + d) == 0) . Map.assocs
+
 tripSeverity :: Firewall -> Int
-tripSeverity =
-  sum . map (\(d, r) -> if position r d == 0 then d * r else 0) . Map.assocs
+tripSeverity = sum . map (uncurry (*)) . collisions 0
 
 smallestPossibleSafeDelay :: Firewall -> PicoTime
 smallestPossibleSafeDelay fw =
-  fst . head . filter ((==0) . snd) . map (\t -> (t, sev t)) $ [0 ..]
- where
-  sev :: PicoTime -> Int
-  sev t0 =
-    sum
-      . map (\(d, r) -> if position r (d + t0) == 0 then 1 else 0)
-      . Map.assocs
-      $ fw
+  fromJust . find (\t -> null $ collisions t fw) $ [0 ..]
 
 solve :: String -> IO ()
 solve input = do
