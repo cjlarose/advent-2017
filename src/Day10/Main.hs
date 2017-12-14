@@ -1,4 +1,4 @@
-module Day10.Main (solve) where
+module Day10.Main (solve, knotHash) where
 
 import Data.List (foldl')
 import Data.List.Split (splitOn, chunksOf)
