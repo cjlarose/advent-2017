@@ -47,5 +47,7 @@ solve input = do
     Left  err   -> print err
     Right moves -> do
       let dancers = makeDancers 16
-      let final   = foldl' dance dancers moves
-      putStrLn . elems $ final
+      putStrLn . elems $ foldl' dance dancers moves
+      putStrLn . elems $ foldl' dance
+                                dancers
+                                (concat $ replicate 1000000000 moves)
