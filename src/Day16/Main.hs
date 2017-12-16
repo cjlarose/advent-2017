@@ -20,8 +20,8 @@ danceMove = choice
 danceMoves :: Parser [DanceMove]
 danceMoves = danceMove `sepBy` char ',' <* endOfLine <* endOfInput
 
-dance :: Dancers -> DanceMove -> Dancers
-dance xs move = xs // updates move
+move :: Dancers -> DanceMove -> Dancers
+move xs m = xs // updates m
  where
   n :: Int
   n = succ . snd . bounds $ xs
@@ -40,6 +40,9 @@ makeDancers :: Int -> Dancers
 makeDancers n =
   UArray.array (0, n - 1) $ map (\x -> (x, chr (ord 'a' + x))) [0 .. (n - 1)] :: Dancers
 
+dance :: Dancers -> [DanceMove] -> Dancers
+dance = foldl' move
+
 solve :: String -> IO ()
 solve input = do
   let parsed = parseOnly danceMoves . pack $ input
@@ -47,7 +50,5 @@ solve input = do
     Left  err   -> print err
     Right moves -> do
       let dancers = makeDancers 16
-      putStrLn . elems $ foldl' dance dancers moves
-      putStrLn . elems $ foldl' dance
-                                dancers
-                                (concat $ replicate 1000000000 moves)
+      putStrLn . elems $ dance dancers moves
+      putStrLn . elems $ dance dancers (concat $ replicate 10000 moves)
