@@ -1,5 +1,6 @@
-module Day10.Main (solve, knotHash) where
+module Day10.Main (main, knotHash) where
 
+import Advent2017.Input (getInputAsString)
 import Data.List (foldl')
 import Data.List.Split (splitOn, chunksOf)
 import qualified Data.ByteString as B
@@ -57,7 +58,8 @@ part2 :: String -> String
 part2 input = toString . toLazyByteString . byteStringHex $ bytes
   where bytes = knotHash 256 (fromString . head . lines $ input)
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "10"
   print . part1 $ input
   putStrLn . part2 $ input

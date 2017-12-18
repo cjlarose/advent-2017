@@ -1,5 +1,6 @@
 module Day6.Main where
 
+import Advent2017.Input (getInputAsString)
 import Data.Set (member, insert, empty)
 import qualified Data.Heap as Heap
 
@@ -29,8 +30,9 @@ takeWhileDistinct = f empty
 redistributeUntilLoopDetected :: BankList -> [BankList]
 redistributeUntilLoopDetected = takeWhileDistinct . iterate redistribute
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "6"
   let xs     = map read . words $ input :: [Int]
       banks  = Heap.fromList $ zipWith (\i c -> (-c, i)) [0 ..] xs
       states = redistributeUntilLoopDetected banks

@@ -1,5 +1,6 @@
-module Day16.Main (solve) where
+module Day16.Main where
 
+import Advent2017.Input (getInputAsString)
 import Data.Attoparsec.Text (Parser, endOfLine, endOfInput, sepBy, decimal,
   letter, choice, char, parseOnly)
 import Data.Text (pack)
@@ -54,8 +55,9 @@ danceForAReallyLongTime ds ms = go ds 1000000000 Map.empty
     (\ys -> go ys (n - 1) $ Map.insert xs ys cache)
     (Map.lookup xs cache)
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "16"
   let parsed = parseOnly danceMoves . pack $ input
   case parsed of
     Left  err   -> print err

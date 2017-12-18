@@ -1,5 +1,6 @@
-module Day11.Main (solve) where
+module Day11.Main where
 
+import Advent2017.Input (getInputAsString)
 import Data.List.Split (splitOn)
 import Data.Char (toUpper)
 
@@ -21,8 +22,9 @@ followPath pos (dir:xs) =
 distance :: (Int, Int, Int) -> Int
 distance (x, y, z) = sum (map abs [x, y, z]) `div` 2
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "11"
   let dirs = map read . splitOn "," . (map toUpper) . head . lines $ input
       path = followPath (0, 0, 0) dirs
   print . distance . last $ path

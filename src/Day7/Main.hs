@@ -1,5 +1,6 @@
 module Day7.Main where
 
+import Advent2017.Input (getInputAsString)
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Data.List (partition)
@@ -52,8 +53,9 @@ findProgram' w adj root siblingWeight = if null bad
     (\p -> notElem (getWeight p) . map getWeight . filter (/=p) $ children)
     children
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "7"
   let parseResult = parseOnly programList (pack input)
   case parseResult of
     Left  err   -> print err

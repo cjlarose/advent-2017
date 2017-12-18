@@ -1,5 +1,6 @@
-module Day9.Main (solve) where
+module Day9.Main where
 
+import Advent2017.Input (getInputAsString)
 import Data.Attoparsec.Text (Parser, endOfLine, parseOnly, char, endOfInput, sepBy, choice, anyChar, notChar, many')
 import Data.Text (pack)
 import Data.Maybe (catMaybes)
@@ -31,8 +32,9 @@ extractGarbage :: GroupMember -> String
 extractGarbage (Garbage s ) = s
 extractGarbage (Group   xs) = concatMap extractGarbage xs
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "9"
   let parsed = parseOnly (group <* endOfLine <* endOfInput) (pack input)
   case parsed of
     Left  _   -> print "err"

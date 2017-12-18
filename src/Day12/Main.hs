@@ -1,5 +1,6 @@
-module Day12.Main (solve) where
+module Day12.Main where
 
+import Advent2017.Input (getInputAsString)
 import Data.List (foldl')
 import qualified Data.Map.Strict as Map
 import qualified Data.IntSet as IntSet
@@ -36,8 +37,9 @@ allSubgraphs graph =
   let allComponents = map (`connectedSubgraph`graph) $ Map.keys graph
   in  foldl' Set.union Set.empty $ map Set.singleton allComponents
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "12"
   let parsed = parseOnly adjacencyList . pack $ input
   case parsed of
     Left  err -> print err

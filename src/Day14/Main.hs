@@ -1,5 +1,6 @@
-module Day14.Main (solve) where
+module Day14.Main where
 
+import Advent2017.Input (getInputAsString)
 import Day10.Main (knotHash)
 import qualified Data.ByteString as B
 import Data.ByteString.UTF8 (fromString)
@@ -74,8 +75,9 @@ numRegions disk = numTrees
       . UArray.assocs
       $ disk
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "14"
   let prefix = head . lines $ input
       disk   = makeDisk prefix
   print . numUsed $ prefix

@@ -20,28 +20,26 @@ import qualified Day14.Main
 import qualified Day15.Main
 import qualified Day16.Main
 
-solver :: Int -> (String -> IO ())
-solver 1 = Day1.Main.solve
-solver 2 = Day2.Main.solve
-solver 3 = Day3.Main.solve
-solver 4 = Day4.Main.solve
-solver 5 = Day5.Main.solve
-solver 6 = Day6.Main.solve
-solver 7 = Day7.Main.solve
-solver 8 = Day8.Main.solve
-solver 9 = Day9.Main.solve
-solver 10 = Day10.Main.solve
-solver 11 = Day11.Main.solve
-solver 12 = Day12.Main.solve
-solver 13 = Day13.Main.solve
-solver 14 = Day14.Main.solve
-solver 15 = Day15.Main.solve
-solver 16 = Day16.Main.solve
-solver n = const (hPrint stderr $ "Unknown problem " ++ show n)
+solver :: Int -> IO ()
+solver 1 = Day1.Main.main
+solver 2 = Day2.Main.main
+solver 3 = Day3.Main.main
+solver 4 = Day4.Main.main
+solver 5 = Day5.Main.main
+solver 6 = Day6.Main.main
+solver 7 = Day7.Main.main
+solver 8 = Day8.Main.main
+solver 9 = Day9.Main.main
+solver 10 = Day10.Main.main
+solver 11 = Day11.Main.main
+solver 12 = Day12.Main.main
+solver 13 = Day13.Main.main
+solver 14 = Day14.Main.main
+solver 15 = Day15.Main.main
+solver 16 = Day16.Main.main
+solver n = hPrint stderr $ "Unknown problem " ++ show n
 
 main :: IO ()
 main = do
   args <- getArgs
-  let problemNumber = head args
-  contents <- readFile $ "inputs/" ++ problemNumber ++ ".txt"
-  solver (read problemNumber) contents
+  solver . read . head $ args

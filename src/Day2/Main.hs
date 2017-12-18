@@ -2,6 +2,7 @@ module Day2.Main where
 
 import Data.List (tails)
 import Data.Tuple (swap)
+import Advent2017.Input (getInputAsString)
 
 checksum :: [[Int]] -> Int
 checksum rows = sum $ zipWith (-) (map maximum rows) (map minimum rows)
@@ -19,8 +20,9 @@ rowQuotient xs =
     $  pairs xs
     ++ map swap (pairs xs)
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "2"
   let rows = map (map read . words) . lines $ input :: [[Int]]
   print . checksum $ rows
   print . sum . map rowQuotient $ rows

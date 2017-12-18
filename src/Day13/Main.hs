@@ -1,5 +1,6 @@
-module Day13.Main (solve) where
+module Day13.Main where
 
+import Advent2017.Input (getInputAsString)
 import Data.List (find)
 import Data.Attoparsec.Text (Parser, parseOnly, sepBy, string, endOfLine, endOfInput, decimal)
 import Control.Applicative (liftA2)
@@ -30,8 +31,9 @@ smallestPossibleSafeDelay :: Firewall -> PicoTime
 smallestPossibleSafeDelay fw =
   fromJust . find (\t -> null $ collisions t fw) $ [0 ..]
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "13"
   let parsed = parseOnly firewall . pack $ input
   case parsed of
     Left  err -> print err

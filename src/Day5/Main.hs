@@ -1,5 +1,7 @@
 module Day5.Main where
 
+import Advent2017.Input (getInputAsString)
+
 type Instruction = Int
 type Machine = ([Instruction], [Instruction])
 
@@ -29,8 +31,9 @@ advance f m@(x:_, _)
   | x >= 0    = iterate moveForward (updateCurrent f m) !! x
   | otherwise = iterate moveBackward (updateCurrent f m) !! (-x)
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "5"
   let
     instructions = map read . lines $ input
     initialState = makeMachine instructions

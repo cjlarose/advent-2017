@@ -1,5 +1,6 @@
-module Day15.Main (solve) where
+module Day15.Main where
 
+import Advent2017.Input (getInputAsString)
 import Data.Bits ((.&.))
 
 generator :: Int -> Int -> [Int]
@@ -22,8 +23,9 @@ part2 seedA seedB = countMatches 5000000 genA genB
   genA = filter (\x -> x `mod` 4 == 0) . generator 16807 $ seedA
   genB = filter (\x -> x `mod` 8 == 0) . generator 48271 $ seedB
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "15"
   let (seedA:seedB:_) = map (read . last . words) . lines $ input
   print $ part1 seedA seedB
   print $ part2 seedA seedB

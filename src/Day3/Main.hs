@@ -1,6 +1,7 @@
 module Day3.Main where
 
 import Control.Arrow ((***))
+import Advent2017.Input (getInputAsString)
 
 distance :: Int -> Int
 distance x = abs (((x - (n * n) - 1) `mod` (n + 1)) - dv) + n - dv
@@ -31,8 +32,9 @@ spiralSums' (x:xs) valueAtCoord = newVal : spiralSums' xs newF
 spiralSums :: [Int]
 spiralSums = spiralSums' (drop 1 coordSpiral) (fromEnum . (==(0, 0)))
 
-solve :: String -> IO ()
-solve input = do
+main :: IO ()
+main = do
+  input <- getInputAsString "3"
   let x = read input :: Int
   print . distance $ x
   print . head . filter (>x) $ spiralSums
