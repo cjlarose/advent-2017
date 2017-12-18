@@ -8,4 +8,4 @@ data Instruction = SND Register
                  | MUL Register ReferenceOrImmediate
                  | MOD Register ReferenceOrImmediate
                  | RCV Register
-                 | JGZ Register ReferenceOrImmediate deriving (Show)
+                 | JGZ ReferenceOrImmediate ReferenceOrImmediate deriving (Show)

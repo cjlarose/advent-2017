@@ -1,13 +1,17 @@
 module Day18.Parser (instructions) where
 
-import Data.Attoparsec.Text (Parser, endOfLine, endOfInput, char, string, sepBy, decimal, anyChar, choice, signed)
+import Data.Attoparsec.Text (Parser, endOfLine, endOfInput, char, string, sepBy, decimal, letter, choice, signed)
 import Data.Text (pack)
 import Day18.AST (Register, ReferenceOrImmediate(..), Instruction(..))
 
 singleArgumentInstruction
   :: String -> (Register -> Instruction) -> Parser Instruction
 singleArgumentInstruction mnemonic f =
-  f <$> (string (pack mnemonic) *> char ' ' *> anyChar)
+  f <$> (string (pack mnemonic) *> char ' ' *> letter)
+
+referenceOrImmediate :: Parser ReferenceOrImmediate
+referenceOrImmediate =
+  choice [Immediate <$> signed decimal, Reference <$> letter]
 
 doubleArgumentInstruction
   :: String
@@ -15,10 +19,14 @@ doubleArgumentInstruction
   -> Parser Instruction
 doubleArgumentInstruction mnemonic f =
   f
-    <$> (string (pack mnemonic) *> char ' ' *> anyChar)
-    <*> (  char ' '
-        *> choice [Immediate <$> signed decimal, Reference <$> anyChar]
-        )
+    <$> (string (pack mnemonic) *> char ' ' *> letter)
+    <*> (char ' ' *> referenceOrImmediate)
+
+jumpInstruction :: Parser Instruction
+jumpInstruction =
+  JGZ
+    <$> (string (pack "jgz") *> char ' ' *> referenceOrImmediate)
+    <*> (char ' ' *> referenceOrImmediate)
 
 instruction :: Parser Instruction
 instruction = choice
@@ -28,7 +36,7 @@ instruction = choice
   , doubleArgumentInstruction "mul" MUL
   , doubleArgumentInstruction "mod" MOD
   , singleArgumentInstruction "rcv" RCV
-  , doubleArgumentInstruction "jgz" JGZ
+  , jumpInstruction
   ]
 
 instructions :: Parser [Instruction]

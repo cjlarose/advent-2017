@@ -18,8 +18,8 @@ listen m xs = go (xs !! readPc m)
   go (MOD k ref) =
     next . advancePc . setVal k (readVal k m `mod` deref ref m) $ m
   go (RCV k) = if readVal k m == 0 then next . advancePc $ m else []
-  go (JGZ k ref) =
-    next $ (if readVal k m > 0 then jumpRelative (deref ref m) else advancePc) m
+  go (JGZ a b) =
+    next $ (if deref a m > 0 then jumpRelative (deref b m) else advancePc) m
 
 part1 :: [Instruction] -> Int
 part1 xs = last $ listen (newMachine 0) xs
