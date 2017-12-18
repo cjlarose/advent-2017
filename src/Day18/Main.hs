@@ -1,58 +1,11 @@
 module Day18.Main where
 
 import Advent2017.Input (getInputAsText)
-import Data.Attoparsec.Text (Parser, parseOnly, endOfLine, endOfInput, char, string, sepBy, decimal, anyChar, choice, signed)
+import Data.Attoparsec.Text (parseOnly)
 import qualified Data.Map.Strict as Map
-import Data.Text (pack)
-
-type Register = Char
-data ReferenceOrImmediate = Reference Register | Immediate Int deriving (Show)
-data Instruction = SND Register
-                 | SET Register ReferenceOrImmediate
-                 | ADD Register ReferenceOrImmediate
-                 | MUL Register ReferenceOrImmediate
-                 | MOD Register ReferenceOrImmediate
-                 | RCV Register
-                 | JGZ Register ReferenceOrImmediate deriving (Show)
-
-type Machine = (Int, Int, Map.Map Register Int)
-
-singleArgumentInstruction
-  :: String -> (Register -> Instruction) -> Parser Instruction
-singleArgumentInstruction mnemonic f =
-  f <$> (string (pack mnemonic) *> char ' ' *> anyChar)
-
-doubleArgumentInstruction
-  :: String
-  -> (Register -> ReferenceOrImmediate -> Instruction)
-  -> Parser Instruction
-doubleArgumentInstruction mnemonic f =
-  f
-    <$> (string (pack mnemonic) *> char ' ' *> anyChar)
-    <*> (  char ' '
-        *> choice [Immediate <$> signed decimal, Reference <$> anyChar]
-        )
-
-instruction :: Parser Instruction
-instruction = choice
-  [ singleArgumentInstruction "snd" SND
-  , doubleArgumentInstruction "set" SET
-  , doubleArgumentInstruction "add" ADD
-  , doubleArgumentInstruction "mul" MUL
-  , doubleArgumentInstruction "mod" MOD
-  , singleArgumentInstruction "rcv" RCV
-  , doubleArgumentInstruction "jgz" JGZ
-  ]
-
-instructions :: Parser [Instruction]
-instructions = (instruction `sepBy` endOfLine) <* endOfLine <* endOfInput
-
-readVal :: Char -> Machine -> Int
-readVal k (_, _, regs) = Map.findWithDefault 0 k regs
-
-deref :: ReferenceOrImmediate -> Machine -> Int
-deref (Reference k) m = readVal k m
-deref (Immediate x) _ = x
+import Day18.AST (Instruction(..))
+import Day18.Parser (instructions)
+import Day18.Machine (Machine, readVal, deref)
 
 advance :: Machine -> [Instruction] -> Either Int Machine
 advance m@(pc, lastSound, regs) xs = go (xs !! pc)
