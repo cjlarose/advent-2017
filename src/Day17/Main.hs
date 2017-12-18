@@ -1,6 +1,6 @@
 module Day17.Main where
 
-import Advent2017.Input (getInputAsString)
+import Advent2017.Input (getFirstLineOfInput)
 import qualified Data.Sequence as Seq
 import Data.Maybe (fromJust)
 
@@ -18,6 +18,5 @@ part1 k = fromJust
 
 main :: IO ()
 main = do
-  input <- getInputAsString "17"
-  let n = read . head . lines $ input :: Int
+  n <- read <$> getFirstLineOfInput "17"
   print . part1 $ n
