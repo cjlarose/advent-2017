@@ -48,12 +48,11 @@ danceForAReallyLongTime :: Dancers -> [DanceMove] -> Dancers
 danceForAReallyLongTime ds ms = go ds 1000000000 Map.empty
  where
   go :: Dancers -> Int -> Map.Map Dancers Dancers -> Dancers
-  go xs 0 _ = xs
-  go xs n cache
-    | Map.member xs cache
-    = let ys = cache Map.! xs in go ys (n - 1) cache
-    | otherwise
-    = let ys = dance xs ms in go ys (n - 1) $ Map.insert xs ys cache
+  go xs 0 _     = xs
+  go xs n cache = maybe
+    (let ys = dance xs ms in go ys (n - 1) $ Map.insert xs ys cache)
+    (\ys -> go ys (n - 1) $ Map.insert xs ys cache)
+    (Map.lookup xs cache)
 
 solve :: String -> IO ()
 solve input = do
