@@ -5,8 +5,8 @@ import Day18.AST (Register, ReferenceOrImmediate(..))
 
 type Machine = (Int, Map.Map Register Int)
 
-newMachine :: Machine
-newMachine = (0, Map.empty)
+newMachine :: Int -> Machine
+newMachine programId = (0, Map.singleton 'p' programId)
 
 readVal :: Char -> Machine -> Int
 readVal k (_, regs) = Map.findWithDefault 0 k regs

@@ -22,7 +22,7 @@ listen m xs = go (xs !! readPc m)
     next $ (if readVal k m > 0 then jumpRelative (deref ref m) else advancePc) m
 
 part1 :: [Instruction] -> Int
-part1 xs = last $ listen newMachine xs
+part1 xs = last $ listen (newMachine 0) xs
 
 main :: IO ()
 main = do
