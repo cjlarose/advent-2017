@@ -4,29 +4,25 @@ import Advent2017.Input (getInputAsText)
 import Data.Attoparsec.Text (parseOnly)
 import Day18.AST (Instruction(..))
 import Day18.Parser (instructions)
-import Day18.Machine (Machine, newMachine, readVal, readLastSound, setVal, deref, setSound, advancePc, jumpRelative, readPc)
+import Day18.Machine (Machine, newMachine, readVal, setVal, deref, advancePc, jumpRelative, readPc)
 
-advance :: Machine -> [Instruction] -> Either Int Machine
-advance m xs = go (xs !! readPc m)
+listen :: Machine -> [Instruction] -> [Int]
+listen m xs = go (xs !! readPc m)
  where
-  go (SND k    ) = Right . advancePc . setSound (readVal k m) $ m
-  go (SET k ref) = Right . advancePc . setVal k (deref ref m) $ m
-  go (ADD k ref) = Right . advancePc . setVal k (readVal k m + deref ref m) $ m
-  go (MUL k ref) = Right . advancePc . setVal k (readVal k m * deref ref m) $ m
-  go (MOD k ref) =
-    Right . advancePc . setVal k (readVal k m `mod` deref ref m) $ m
-  go (RCV k) =
-    if readVal k m == 0 then Right (advancePc m) else Left (readLastSound m)
-  go (JGZ k ref) = Right
-    $ if readVal k m > 0 then jumpRelative (deref ref m) m else advancePc m
+  next m' = listen m' xs
 
-runMachineUntilRecovery :: Machine -> [Instruction] -> Int
-runMachineUntilRecovery m xs = case advance m xs of
-  Left  lastSound -> lastSound
-  Right m'        -> runMachineUntilRecovery m' xs
+  go (SND k    ) = readVal k m : next (advancePc m)
+  go (SET k ref) = next . advancePc . setVal k (deref ref m) $ m
+  go (ADD k ref) = next . advancePc . setVal k (readVal k m + deref ref m) $ m
+  go (MUL k ref) = next . advancePc . setVal k (readVal k m * deref ref m) $ m
+  go (MOD k ref) =
+    next . advancePc . setVal k (readVal k m `mod` deref ref m) $ m
+  go (RCV k) = if readVal k m == 0 then next . advancePc $ m else []
+  go (JGZ k ref) =
+    next $ (if readVal k m > 0 then jumpRelative (deref ref m) else advancePc) m
 
 part1 :: [Instruction] -> Int
-part1 = runMachineUntilRecovery newMachine
+part1 xs = last $ listen newMachine xs
 
 main :: IO ()
 main = do
