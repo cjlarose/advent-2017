@@ -2,35 +2,31 @@ module Day18.Main where
 
 import Advent2017.Input (getInputAsText)
 import Data.Attoparsec.Text (parseOnly)
-import qualified Data.Map.Strict as Map
 import Day18.AST (Instruction(..))
 import Day18.Parser (instructions)
-import Day18.Machine (Machine, readVal, deref)
+import Day18.Machine (Machine, newMachine, readVal, readLastSound, setVal, deref, setSound, advancePc, jumpRelative, readPc)
 
 advance :: Machine -> [Instruction] -> Either Int Machine
-advance m@(pc, lastSound, regs) xs = go (xs !! pc)
+advance m xs = go (xs !! readPc m)
  where
-  go (SND k    ) = Right (pc + 1, readVal k m, regs)
-  go (SET k ref) = Right (pc + 1, lastSound, Map.insert k (deref ref m) regs)
-  go (ADD k ref) =
-    Right (pc + 1, lastSound, Map.insert k (readVal k m + deref ref m) regs)
-  go (MUL k ref) =
-    Right (pc + 1, lastSound, Map.insert k (readVal k m * deref ref m) regs)
+  go (SND k    ) = Right . advancePc . setSound (readVal k m) $ m
+  go (SET k ref) = Right . advancePc . setVal k (deref ref m) $ m
+  go (ADD k ref) = Right . advancePc . setVal k (readVal k m + deref ref m) $ m
+  go (MUL k ref) = Right . advancePc . setVal k (readVal k m * deref ref m) $ m
   go (MOD k ref) =
-    Right (pc + 1, lastSound, Map.insert k (readVal k m `mod` deref ref m) regs)
+    Right . advancePc . setVal k (readVal k m `mod` deref ref m) $ m
   go (RCV k) =
-    if readVal k m == 0 then Right (pc + 1, lastSound, regs) else Left lastSound
-  go (JGZ k ref) =
-    let newPc = (if readVal k m > 0 then pc + deref ref m else pc + 1)
-    in  Right (newPc, lastSound, regs)
+    if readVal k m == 0 then Right (advancePc m) else Left (readLastSound m)
+  go (JGZ k ref) = Right
+    $ if readVal k m > 0 then jumpRelative (deref ref m) m else advancePc m
 
 runMachineUntilRecovery :: Machine -> [Instruction] -> Int
 runMachineUntilRecovery m xs = case advance m xs of
-  Left  lastSound  -> lastSound
-  Right newMachine -> runMachineUntilRecovery newMachine xs
+  Left  lastSound -> lastSound
+  Right m'        -> runMachineUntilRecovery m' xs
 
 part1 :: [Instruction] -> Int
-part1 = runMachineUntilRecovery (0, -1, Map.empty)
+part1 = runMachineUntilRecovery newMachine
 
 main :: IO ()
 main = do
