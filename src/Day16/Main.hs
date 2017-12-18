@@ -6,6 +6,7 @@ import Data.Text (pack)
 import Data.List (foldl')
 import Data.Array.Unboxed as UArray (UArray, (//), (!), array, bounds, assocs, elems)
 import Data.Char (ord, chr)
+import qualified Data.Map.Strict as Map
 
 data DanceMove = Spin Int | Exchange Int Int | Partner Char Char deriving (Show)
 type Dancers = UArray.UArray Int Char
@@ -43,6 +44,17 @@ makeDancers n =
 dance :: Dancers -> [DanceMove] -> Dancers
 dance = foldl' move
 
+danceForAReallyLongTime :: Dancers -> [DanceMove] -> Dancers
+danceForAReallyLongTime ds ms = go ds 1000000000 Map.empty
+ where
+  go :: Dancers -> Int -> Map.Map Dancers Dancers -> Dancers
+  go xs 0 _ = xs
+  go xs n cache
+    | Map.member xs cache
+    = let ys = cache Map.! xs in go ys (n - 1) cache
+    | otherwise
+    = let ys = dance xs ms in go ys (n - 1) $ Map.insert xs ys cache
+
 solve :: String -> IO ()
 solve input = do
   let parsed = parseOnly danceMoves . pack $ input
@@ -51,4 +63,4 @@ solve input = do
     Right moves -> do
       let dancers = makeDancers 16
       putStrLn . elems $ dance dancers moves
-      putStrLn . elems $ dance dancers (concat $ replicate 10000 moves)
+      putStrLn . elems $ danceForAReallyLongTime dancers moves
