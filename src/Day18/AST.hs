@@ -2,7 +2,7 @@ module Day18.AST (Register, ReferenceOrImmediate(..), Instruction(..)) where
 
 type Register = Char
 data ReferenceOrImmediate = Reference Register | Immediate Int deriving (Show)
-data Instruction = SND Register
+data Instruction = SND ReferenceOrImmediate
                  | SET Register ReferenceOrImmediate
                  | ADD Register ReferenceOrImmediate
                  | MUL Register ReferenceOrImmediate

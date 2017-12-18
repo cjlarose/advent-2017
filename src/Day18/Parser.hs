@@ -22,6 +22,10 @@ doubleArgumentInstruction mnemonic f =
     <$> (string (pack mnemonic) *> char ' ' *> letter)
     <*> (char ' ' *> referenceOrImmediate)
 
+sndInstruction :: Parser Instruction
+sndInstruction =
+  SND <$> (string (pack "snd") *> char ' ' *> referenceOrImmediate)
+
 jumpInstruction :: Parser Instruction
 jumpInstruction =
   JGZ
@@ -30,7 +34,7 @@ jumpInstruction =
 
 instruction :: Parser Instruction
 instruction = choice
-  [ singleArgumentInstruction "snd" SND
+  [ sndInstruction
   , doubleArgumentInstruction "set" SET
   , doubleArgumentInstruction "add" ADD
   , doubleArgumentInstruction "mul" MUL

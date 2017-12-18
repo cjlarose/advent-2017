@@ -11,7 +11,7 @@ listen m xs = go (xs !! readPc m)
  where
   next m' = listen m' xs
 
-  go (SND k    ) = readVal k m : next (advancePc m)
+  go (SND ref  ) = deref ref m : next (advancePc m)
   go (SET k ref) = next . advancePc . setVal k (deref ref m) $ m
   go (ADD k ref) = next . advancePc . setVal k (readVal k m + deref ref m) $ m
   go (MUL k ref) = next . advancePc . setVal k (readVal k m * deref ref m) $ m
