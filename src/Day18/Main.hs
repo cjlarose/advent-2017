@@ -1,4 +1,4 @@
-module Day18.Main where
+module Day18.Main (main) where
 
 import Advent2017.Input (getInputAsText)
 import Data.Attoparsec.Text (parseOnly)
@@ -9,21 +9,6 @@ import qualified Data.Sequence as Seq
 import Data.Sequence ((|>), ViewL((:<)))
 
 data PausedMachine = Receiving (Int -> PausedMachine) | Sending (Int, Machine)
-
-listen :: Machine -> [Instruction] -> [Int]
-listen m xs = go (xs !! readPc m)
- where
-  next m' = listen m' xs
-
-  go (SND ref  ) = deref ref m : next (advancePc m)
-  go (SET k ref) = next . advancePc . setVal k (deref ref m) $ m
-  go (ADD k ref) = next . advancePc . setVal k (readVal k m + deref ref m) $ m
-  go (MUL k ref) = next . advancePc . setVal k (readVal k m * deref ref m) $ m
-  go (MOD k ref) =
-    next . advancePc . setVal k (readVal k m `mod` deref ref m) $ m
-  go (RCV k) = if readVal k m == 0 then next . advancePc $ m else []
-  go (JGZ a b) =
-    next $ (if deref a m > 0 then jumpRelative (deref b m) else advancePc) m
 
 runUntilCommunicating :: Machine -> [Instruction] -> PausedMachine
 runUntilCommunicating m xs = go (xs !! readPc m)
@@ -44,7 +29,11 @@ runUntilCommunicating m xs = go (xs !! readPc m)
     next $ (if deref a m > 0 then jumpRelative (deref b m) else advancePc) m
 
 part1 :: [Instruction] -> Int
-part1 xs = last $ listen (newMachine 0) xs
+part1 xs = last . go $ runUntilCommunicating (newMachine 0) xs
+ where
+  go :: PausedMachine -> [Int]
+  go (Sending (v, m)) = v : go (runUntilCommunicating m xs)
+  go (Receiving _) = []
 
 part2 :: [Instruction] -> Int
 part2 xs = go (runUntilCommunicating (newMachine 0) xs, Seq.empty)
