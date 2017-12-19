@@ -47,22 +47,31 @@ routePacket
   -> Set.Set (Int, Int)
   -> Direction
   -> String
-routePacket pos g letters pluses dir = go
+  -> Int
+  -> (String, Int)
+routePacket pos g letters pluses dir ls steps = go
  where
-  continue newDir = routePacket (move pos newDir) g letters pluses newDir
-  go | Map.member pos letters   = (letters Map.! pos) : continue dir
-     | Set.member pos pluses    = continue (nextDir g pos dir)
-     | null (options g pos dir) = []
-     | otherwise                = continue dir
+  continue newDir newLs = routePacket (move pos newDir)
+                                      g
+                                      letters
+                                      pluses
+                                      newDir
+                                      (ls ++ newLs)
+                                      (steps + 1)
+  go | Map.member pos letters   = continue dir [letters Map.! pos]
+     | Set.member pos pluses    = continue (nextDir g pos dir) []
+     | null (options g pos dir) = (ls, steps)
+     | otherwise                = continue dir []
 
 getStartPos :: Grid -> (Int, Int)
 getStartPos = fst . head . filter (\(_, c) -> not . isSpace $ c) . Array.assocs
 
-part1 :: Grid -> String
-part1 g = routePacket (getStartPos g) g (findLetters g) (findPluses g) (1, 0)
+getRoute :: Grid -> (String, Int)
+getRoute g =
+  routePacket (getStartPos g) g (findLetters g) (findPluses g) (1, 0) "" 0
 
 main :: IO ()
 main = do
   input <- getInputAsString "19"
   let grid = toGrid input
-  putStrLn . part1 $ grid
+  print . getRoute $ grid
