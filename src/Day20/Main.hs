@@ -3,7 +3,7 @@ module Day20.Main (main) where
 import Advent2017.Input (getInputAsText)
 import Data.Attoparsec.Text (Parser, parseOnly, endOfLine, endOfInput, char, string, sepBy, signed, decimal)
 import Data.Text (pack)
-import Data.List (minimumBy)
+import Data.List (minimumBy, sortOn, groupBy)
 
 type Vec3 = (Int, Int, Int)
 data Particle = Particle { position :: Vec3
@@ -57,9 +57,22 @@ closestToOrign =
 part1 :: [Particle] -> Int
 part1 xs = closestToOrign $ iterate tick xs !! 1000
 
+resolveCollisions :: [Particle] -> [Particle]
+resolveCollisions =
+  concat
+    . filter ((==1) . length)
+    . groupBy (\p p' -> position p == position p')
+    . sortOn position
+
+part2 :: [Particle] -> Int
+part2 xs = length $ iterate tick' xs !! 1000
+  where tick' = resolveCollisions . tick
+
 main :: IO ()
 main = do
   parsed <- parseOnly particles <$> getInputAsText "20"
   case parsed of
     Left  err -> print err
-    Right ast -> print . part1 $ ast
+    Right ast -> do
+      print . part1 $ ast
+      print . part2 $ ast
