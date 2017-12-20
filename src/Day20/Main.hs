@@ -4,6 +4,7 @@ import Advent2017.Input (getInputAsText)
 import Data.Attoparsec.Text (Parser, parseOnly, endOfLine, endOfInput, char, string, sepBy, signed, decimal)
 import Data.Text (pack)
 import Data.List (minimumBy, sortOn, groupBy)
+import Data.Ord (comparing)
 
 type Vec3 = (Int, Int, Int)
 data Particle = Particle { position :: Vec3
@@ -13,9 +14,9 @@ data Particle = Particle { position :: Vec3
 vec3 :: Parser Vec3
 vec3 =
   (,,)
-    <$> (char '<' *> signed decimal)
+    <$> signed decimal
     <*> (char ',' *> signed decimal)
-    <*> (char ',' *> signed decimal <* char '>')
+    <*> (char ',' *> signed decimal)
 
 particle :: Parser Particle
 particle =
@@ -24,8 +25,8 @@ particle =
     <*> (string (pack ", ") *> assignment 'v')
     <*> (string (pack ", ") *> assignment 'a')
  where
-  assignment :: Char -> Parser Vec3
-  assignment c = char c *> char '=' *> vec3
+  inBrackets p = char '<' *> p <* char '>'
+  assignment c = char c *> char '=' *> inBrackets vec3
 
 particles :: Parser [Particle]
 particles = particle `sepBy` endOfLine <* endOfLine <* endOfInput
@@ -39,23 +40,12 @@ moveParticle p = p { position = newP, velocity = newV }
   newV = velocity p `addVec3` acceleration p
   newP = position p `addVec3` newV
 
-tick :: [Particle] -> [Particle]
-tick = map moveParticle
-
-distanceFromOrigin :: Particle -> Int
-distanceFromOrigin p = let (x, y, z) = position p in abs x + abs y + abs z
-
 closestToOrign :: [Particle] -> Int
-closestToOrign =
-  fst
-    . minimumBy
-        ( \(_, p) (_, p') ->
-          distanceFromOrigin p `compare` distanceFromOrigin p'
-        )
-    . zip [0 ..]
+closestToOrign = fst . minimumBy (comparing (d . snd)) . zip [0 ..]
+  where d p = let (x, y, z) = position p in abs x + abs y + abs z
 
 part1 :: [Particle] -> Int
-part1 xs = closestToOrign $ iterate tick xs !! 1000
+part1 xs = closestToOrign $ iterate (map moveParticle) xs !! 1000
 
 resolveCollisions :: [Particle] -> [Particle]
 resolveCollisions =
@@ -65,8 +55,7 @@ resolveCollisions =
     . sortOn position
 
 part2 :: [Particle] -> Int
-part2 xs = length $ iterate tick' xs !! 1000
-  where tick' = resolveCollisions . tick
+part2 xs = length $ iterate (resolveCollisions . map moveParticle) xs !! 1000
 
 main :: IO ()
 main = do
