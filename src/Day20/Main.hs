@@ -40,12 +40,12 @@ moveParticle p = p { position = newP, velocity = newV }
   newV = velocity p `addVec3` acceleration p
   newP = position p `addVec3` newV
 
-closestToOrign :: [Particle] -> Int
-closestToOrign = fst . minimumBy (comparing (d . snd)) . zip [0 ..]
+closestToOrigin :: [Particle] -> Int
+closestToOrigin = fst . minimumBy (comparing (d . snd)) . zip [0 ..]
   where d p = let (x, y, z) = position p in abs x + abs y + abs z
 
 part1 :: [Particle] -> Int
-part1 xs = closestToOrign $ iterate (map moveParticle) xs !! 1000
+part1 xs = closestToOrigin $ iterate (map moveParticle) xs !! 1000
 
 resolveCollisions :: [Particle] -> [Particle]
 resolveCollisions =
