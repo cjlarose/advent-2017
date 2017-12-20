@@ -1,6 +1,6 @@
 module Day13.Main where
 
-import Advent2017.Input (getInputAsString)
+import Advent2017.Input (getInputAsText)
 import Data.List (find)
 import Data.Attoparsec.Text (Parser, parseOnly, sepBy, string, endOfLine, endOfInput, decimal)
 import Control.Applicative (liftA2)
@@ -33,8 +33,7 @@ smallestPossibleSafeDelay fw =
 
 main :: IO ()
 main = do
-  input <- getInputAsString "13"
-  let parsed = parseOnly firewall . pack $ input
+  parsed <- parseOnly firewall <$> getInputAsText "13"
   case parsed of
     Left  err -> print err
     Right fw  -> do

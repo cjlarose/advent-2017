@@ -1,6 +1,6 @@
 module Day12.Main where
 
-import Advent2017.Input (getInputAsString)
+import Advent2017.Input (getInputAsText)
 import Data.List (foldl')
 import qualified Data.Map.Strict as Map
 import qualified Data.IntSet as IntSet
@@ -39,8 +39,7 @@ allSubgraphs graph =
 
 main :: IO ()
 main = do
-  input <- getInputAsString "12"
-  let parsed = parseOnly adjacencyList . pack $ input
+  parsed <- parseOnly adjacencyList <$> getInputAsText "12"
   case parsed of
     Left  err -> print err
     Right ast -> do

@@ -1,6 +1,6 @@
 module Day7.Main where
 
-import Advent2017.Input (getInputAsString)
+import Advent2017.Input (getInputAsText)
 import qualified Data.Set as Set
 import qualified Data.Map.Strict as Map
 import Data.List (partition)
@@ -55,9 +55,8 @@ findProgram' w adj root siblingWeight = if null bad
 
 main :: IO ()
 main = do
-  input <- getInputAsString "7"
-  let parseResult = parseOnly programList (pack input)
-  case parseResult of
+  parsed <- parseOnly programList <$> getInputAsText "7"
+  case parsed of
     Left  err   -> print err
     Right progs -> do
       let progNames  = Set.fromList $ map (\(name, _, _) -> name) progs
