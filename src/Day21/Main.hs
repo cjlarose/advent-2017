@@ -59,8 +59,8 @@ equivalenceClass img = do
   return . t1 . t0 $ img
 
 patternMap :: [(Image, Image)] -> Map.Map Image Image
-patternMap = Map.fromList . concatMap
-  (\(preimage, img) -> zip (equivalenceClass preimage) (repeat img))
+patternMap =
+  Map.fromList . concatMap (\(k, v) -> zip (equivalenceClass k) (repeat v))
 
 crop :: (Int, Int) -> (Int, Int) -> Image -> Image
 crop (i, j) (m, n) src = UArray.array
