@@ -110,13 +110,11 @@ getRules = do
   parsed <- parseOnly enhancementRules <$> getInputAsText "21"
   return . either (const []) id $ parsed
 
-doRounds :: Map.Map Image Image -> Int -> IO ()
-doRounds rules n = do
-  let finalImage = iterate (enhance rules) startingImage !! n
-  print . countOnPixels $ finalImage
+enhanceAndCount :: Map.Map Image Image -> Int -> Int
+enhanceAndCount rules k = countOnPixels $ iterate (enhance rules) startingImage !! k
 
 main :: IO ()
 main = do
   rules <- patternMap <$> getRules
-  doRounds rules 5
-  doRounds rules 18
+  print . enhanceAndCount rules $ 5
+  print . enhanceAndCount rules $ 18
