@@ -53,10 +53,7 @@ flipH :: Image -> Image
 flipH = transformImg (\(_, n) (i, j) -> (i, n - j))
 
 equivalenceClass :: Image -> [Image]
-equivalenceClass img = do
-  t0 <- take 4 . iterate (.rotateRight) $ id
-  t1 <- [id, flipH]
-  return . t1 . t0 $ img
+equivalenceClass img = [img, flipH img] >>= take 4 . iterate rotateRight
 
 patternMap :: [(Image, Image)] -> Map.Map Image Image
 patternMap =
