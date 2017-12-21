@@ -98,10 +98,7 @@ joinImages xs = UArray.array
   n        = (n' + 1) * length (head xs)
 
 enhance :: Map.Map Image Image -> Image -> Image
-enhance patterns img = joinImages newImages
- where
-  parts     = splitImage img
-  newImages = map (map (\p -> patterns Map.! p)) parts
+enhance patterns = joinImages . map (map (\p -> patterns Map.! p)) . splitImage
 
 startingImage :: Image
 startingImage =
