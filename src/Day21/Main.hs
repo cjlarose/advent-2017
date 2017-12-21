@@ -38,28 +38,23 @@ enhancementRule = (,) <$> (image <* string (pack " => ")) <*> image
 enhancementRules :: Parser [(Image, Image)]
 enhancementRules = enhancementRule `sepBy` endOfLine <* endOfLine <* endOfInput
 
-rotateRight :: Image -> Image
-rotateRight img = UArray.array
-  ((0, 0), (n', m'))
-  [ ((i, j), img ! (m' - j, i)) | i <- [0 .. n'], j <- [0 .. m'] ]
+transformImg :: ((Int, Int) -> (Int, Int) -> (Int, Int)) -> Image -> Image
+transformImg f img = UArray.array
+  ((0, 0), (m', n'))
+  [ ((i, j), img ! f (m', n') (i, j)) | i <- [0 .. m'], j <- [0 .. n'] ]
   where (_, (m', n')) = UArray.bounds img
 
-flipV :: Image -> Image
-flipV img = UArray.array
-  ((0, 0), (m', n'))
-  [ ((i, j), img ! (m' - i, j)) | i <- [0 .. m'], j <- [0 .. n'] ]
-  where (_, (m', n')) = UArray.bounds img
+rotateRight :: Image -> Image
+rotateRight = transformImg (\(m, _) (i, j) -> (m - j, i))
 
 flipH :: Image -> Image
-flipH img = UArray.array
-  ((0, 0), (m', n'))
-  [ ((i, j), img ! (i, n' - j)) | i <- [0 .. m'], j <- [0 .. n'] ]
-  where (_, (m', n')) = UArray.bounds img
+flipH = transformImg (\(_, n) (i, j) -> (i, n - j))
 
 equivalenceClass :: Image -> [Image]
-equivalenceClass img =
-  (take 4 . iterate rotateRight $ img)
-    ++ [flipH img, flipV img, flipH (rotateRight img), flipV (rotateRight img)]
+equivalenceClass img = do
+  t0 <- take 4 . iterate (.rotateRight) $ id
+  t1 <- [id, flipH]
+  return . t1 . t0 $ img
 
 patternMap :: [(Image, Image)] -> Map.Map Image Image
 patternMap = Map.fromList . concatMap
