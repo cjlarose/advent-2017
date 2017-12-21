@@ -11,8 +11,8 @@ import Data.Either (either)
 
 type Image = UArray.Array (Int, Int) Bool
 
-row :: Parser [Bool]
-row = map (=='#') . unpack <$> takeWhile1 (inClass ".#")
+row :: Parser String
+row = unpack <$> takeWhile1 (inClass ".#")
 
 showImage :: Image -> String
 showImage img = intercalate
@@ -20,14 +20,16 @@ showImage img = intercalate
   [ [ if img ! (i, j) then '#' else '.' | j <- [0 .. n'] ] | i <- [0 .. m'] ]
   where (_, (m', n')) = UArray.bounds img
 
-makeImage :: [[Bool]] -> Image
+makeImage :: [String] -> Image
 makeImage rows = UArray.array ((0, 0), (n - 1, n - 1)) entries
  where
   n = length rows
 
   entries :: [((Int, Int), Bool)]
-  entries = concat
-    $ zipWith (\i xs -> zipWith (\j x -> ((i, j), x)) [0 ..] xs) [0 ..] rows
+  entries = concat $ zipWith
+    (\i xs -> zipWith (\j c -> ((i, j), c == '#')) [0 ..] xs)
+    [0 ..]
+    rows
 
 image :: Parser Image
 image = makeImage <$> row `sepBy` char '/'
@@ -101,8 +103,7 @@ enhance :: Map.Map Image Image -> Image -> Image
 enhance patterns = joinImages . map (map (\p -> patterns Map.! p)) . splitImage
 
 startingImage :: Image
-startingImage =
-  makeImage [[False, True, False], [False, False, True], [True, True, True]]
+startingImage = makeImage [".#.", "..#", "###"]
 
 countOnPixels :: Image -> Int
 countOnPixels = length . filter (==True) . UArray.elems
