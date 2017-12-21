@@ -1,4 +1,4 @@
-module Day21.Main (main) where
+module Day21.Main where
 
 import Advent2017.Input (getInputAsText)
 import qualified Data.Array.Unboxed as UArray
@@ -120,9 +120,13 @@ getRules = do
   parsed <- parseOnly enhancementRules <$> getInputAsText "21"
   return . either (const []) id $ parsed
 
+doRounds :: Map.Map Image Image -> Int -> IO ()
+doRounds rules n = do
+  let finalImage = iterate (enhance rules) startingImage !! n
+  print . countOnPixels $ finalImage
+
 main :: IO ()
 main = do
   rules <- patternMap <$> getRules
-  let afterFive = iterate (enhance rules) startingImage !! 5
-  putStrLn . showImage $ afterFive
-  print . countOnPixels $ afterFive
+  doRounds rules 5
+  doRounds rules 18
