@@ -6,6 +6,7 @@ import qualified Data.Map as Map
 type Grid = Map.Map (Int, Int) NodeState
 type Direction = (Int, Int)
 type Position = (Int, Int)
+type CarrierRule = (NodeState -> NodeState, NodeState -> Direction -> Direction)
 type VirusCarrier = (Direction, Position)
 data NodeState = Clean | Infected deriving (Eq)
 type GridState = (Grid, VirusCarrier, Int)
@@ -22,14 +23,24 @@ turnLeft (i, j) = (-j, i)
 nodeState :: (Int, Int) -> Grid -> NodeState
 nodeState = Map.findWithDefault Clean
 
-step :: GridState -> GridState
-step (g, (dir, pos), n) = (newG, (newDir, newPos), newN)
+part1Carrier :: CarrierRule
+part1Carrier = (toggleInfection, turn)
  where
-  infected = nodeState pos g == Infected
-  newG     = if infected then Map.insert pos Clean g else Map.insert pos Infected g
-  newDir   = if infected then turnRight dir else turnLeft dir
+  toggleInfection Infected = Clean
+  toggleInfection Clean    = Infected
+
+  turn Infected = turnRight
+  turn Clean    = turnLeft
+
+step :: CarrierRule -> GridState -> GridState
+step (f, t) (g, (dir, pos), n) = (newG, (newDir, newPos), newN)
+ where
+  state    = nodeState pos g
+  newState = f state
+  newG     = Map.insert pos newState g
+  newDir   = t state dir
   newPos   = addVec2 pos newDir
-  newN     = n + (if infected then 0 else 1)
+  newN     = n + (if newState == Infected then 1 else 0)
 
 parseGrid :: String -> Grid
 parseGrid str =
@@ -54,5 +65,5 @@ main :: IO ()
 main = do
   grid <- parseGrid <$> getInputAsString "22"
   let initialState = (grid, ((-1, 0), (0, 0)), 0)
-      (_, _, n)    = iterate step initialState !! 10000
+      (_, _, n)    = iterate (step part1Carrier) initialState !! 10000
   print n
