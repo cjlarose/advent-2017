@@ -8,7 +8,7 @@ type Direction = (Int, Int)
 type Position = (Int, Int)
 type CarrierRule = (NodeState -> NodeState, NodeState -> Direction -> Direction)
 type VirusCarrier = (Direction, Position)
-data NodeState = Clean | Infected deriving (Eq)
+data NodeState = Clean | Infected | Weakened | Flagged deriving (Eq)
 type GridState = (Grid, VirusCarrier, Int)
 
 addVec2 :: (Int, Int) -> (Int, Int) -> (Int, Int)
@@ -28,9 +28,24 @@ part1Carrier = (toggleInfection, turn)
  where
   toggleInfection Infected = Clean
   toggleInfection Clean    = Infected
+  toggleInfection _        = error "unreachable"
 
   turn Infected = turnRight
   turn Clean    = turnLeft
+  turn _        = error "unreachable"
+
+part2Carrier :: CarrierRule
+part2Carrier = (nextState, turn)
+ where
+  nextState Clean = Weakened
+  nextState Weakened = Infected
+  nextState Infected = Flagged
+  nextState Flagged = Clean
+
+  turn Clean = turnLeft
+  turn Weakened = id
+  turn Infected = turnRight
+  turn Flagged = turnRight . turnRight
 
 step :: CarrierRule -> GridState -> GridState
 step (f, t) (g, (dir, pos), n) = (newG, (newDir, newPos), newN)
@@ -65,5 +80,7 @@ main :: IO ()
 main = do
   grid <- parseGrid <$> getInputAsString "22"
   let initialState = (grid, ((-1, 0), (0, 0)), 0)
-      (_, _, n)    = iterate (step part1Carrier) initialState !! 10000
-  print n
+      (_, _, part1)    = iterate (step part1Carrier) initialState !! 10000
+      (_, _, part2)    = iterate (step part2Carrier) initialState !! 10000000
+  print part1
+  print part2
