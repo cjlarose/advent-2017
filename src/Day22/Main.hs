@@ -1,12 +1,13 @@
 module Day22.Main where
 
 import Advent2017.Input (getInputAsString)
-import qualified Data.Set as Set
+import qualified Data.Map as Map
 
-type Grid = Set.Set (Int, Int)
+type Grid = Map.Map (Int, Int) NodeState
 type Direction = (Int, Int)
 type Position = (Int, Int)
 type VirusCarrier = (Direction, Position)
+data NodeState = Clean | Infected deriving (Eq)
 type GridState = (Grid, VirusCarrier, Int)
 
 addVec2 :: (Int, Int) -> (Int, Int) -> (Int, Int)
@@ -18,21 +19,24 @@ turnRight (i, j) = (j, -i)
 turnLeft :: Direction -> Direction
 turnLeft (i, j) = (-j, i)
 
+nodeState :: (Int, Int) -> Grid -> NodeState
+nodeState = Map.findWithDefault Clean
+
 step :: GridState -> GridState
 step (g, (dir, pos), n) = (newG, (newDir, newPos), newN)
  where
-  infected = Set.member pos g
-  newG     = if infected then Set.delete pos g else Set.insert pos g
+  infected = nodeState pos g == Infected
+  newG     = if infected then Map.insert pos Clean g else Map.insert pos Infected g
   newDir   = if infected then turnRight dir else turnLeft dir
   newPos   = addVec2 pos newDir
   newN     = n + (if infected then 0 else 1)
 
 parseGrid :: String -> Grid
 parseGrid str =
-  Set.fromList
+  Map.fromList
     . concatMap
         ( \(i, row) ->
-          map (\(j, _) -> (i - i', j - j'))
+          map (\(j, _) -> ((i - i', j - j'), Infected))
             . filter ((=='#') . snd)
             . zip [0 ..]
             $ row
