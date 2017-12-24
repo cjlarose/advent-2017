@@ -67,13 +67,13 @@ runInstruction m@(pc, regs) (MUL x y) =
 runInstruction m@(pc, regs) (JNZ x y) =
   let k = if valueOf x m /= 0 then valueOf y m else 1 in (pc + k, regs)
 
-runMachine :: Program -> Int
-runMachine prog = go newMachine 0
+runMachine :: Machine -> Program -> (Machine, Int)
+runMachine machine prog = go machine 0
  where
-  go :: Machine -> Int -> Int
+  go :: Machine -> Int -> (Machine, Int)
   go m@(pc, _) acc
     | pc < 0 || pc >= length prog
-    = acc
+    = (m, acc)
     | otherwise
     = let inst = prog !! pc in go (runInstruction m inst) (newAcc inst)
    where
@@ -83,7 +83,18 @@ runMachine prog = go newMachine 0
 getProgram :: IO Program
 getProgram = either (const []) id . parseOnly program <$> getInputAsText "23"
 
+part1 :: Program -> Int
+part1 = snd . runMachine newMachine
+
+part2 :: Program -> Int
+part2 prog = finalRegs ! 'h'
+ where
+  (_, regs) = newMachine
+  initialState = (0, regs // [('a', 1)])
+  (_, finalRegs) = fst $ runMachine initialState prog
+
 main :: IO ()
 main = do
   prog <- getProgram
-  print . runMachine $ prog
+  print . part1 $ prog
+  print . part2 $ prog
