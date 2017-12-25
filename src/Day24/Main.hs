@@ -5,6 +5,7 @@ import Control.Applicative (liftA2)
 import qualified Data.Set as Set
 import Data.List (foldl')
 import Advent2017.Input (getInputAsText)
+import Control.Arrow ((&&&))
 
 type Component = (Int, Int)
 type ComponentBag = Set.Set Component
@@ -35,8 +36,12 @@ strength = foldl' (\acc (x, y) -> x + y + acc) 0
 part1 :: ComponentBag -> Int
 part1 xs = maximum . map strength $ bridges xs 0
 
+part2 :: ComponentBag -> Int
+part2 xs = snd . maximum . map (length &&& strength) $ bridges xs 0
+
 main :: IO ()
 main = do
   pieces <- getComponents
   print pieces
   print . part1 $ pieces
+  print . part2 $ pieces
