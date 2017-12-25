@@ -24,24 +24,10 @@ getComponents =
 bridges :: ComponentBag -> Int -> [Bridge]
 bridges available startPort = l ++ r
  where
-  l :: [Bridge]
-  l =
-    concatMap
-        ( \c@(_, p) ->
-          [c] : map (\b -> c : b) (bridges (Set.delete c available) p)
-        )
-      . filter ((==startPort) . fst)
-      . Set.toList
-      $ available
-  r :: [Bridge]
-  r =
-    concatMap
-        ( \c@(p, _) ->
-          [c] : map (\b -> c : b) (bridges (Set.delete c available) p)
-        )
-      . filter ((==startPort) . snd)
-      . Set.toList
-      $ available
+  options = Set.toList available
+  f c p = [c] : map (\b -> c : b) (bridges (Set.delete c available) p)
+  l = concatMap (\c@(_, p) -> f c p) . filter ((==startPort) . fst) $ options
+  r = concatMap (\c@(p, _) -> f c p) . filter ((==startPort) . snd) $ options
 
 strength :: Bridge -> Int
 strength = foldl' (\acc (x, y) -> x + y + acc) 0
